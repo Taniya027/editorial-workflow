@@ -1,8 +1,138 @@
-generator client {
-  provider = "prisma-client-js"
+enum Role {
+  EDITOR
+  WRITER
 }
 
-datasource db {
-  provider = "postgresql"
-  
+enum ArticleStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  SCHEDULED
+  PUBLISHED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         Role
+
+  createdAt    DateTime @default(now())
+
+  ownedSections Section[]
+  articles      Article[]
+  comments      Comment[]
+  auditLogs     AuditLog[]
+
+  assignments   SectionAssignment[]
+}
+
+model Section {
+  id            String   @id @default(cuid())
+  name          String
+  description   String
+
+  archived      Boolean  @default(false)
+
+  ownerEditorId String
+  ownerEditor   User @relation(fields: [ownerEditorId], references: [id])
+
+  articles      Article[]
+  assignments   SectionAssignment[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model SectionAssignment {
+  id         String @id @default(cuid())
+
+  writerId   String
+  sectionId  String
+
+  writer     User @relation(fields: [writerId], references: [id])
+  section    Section @relation(fields: [sectionId], references: [id])
+
+  @@unique([writerId, sectionId])
+}
+
+model Article {
+  id          String @id @default(cuid())
+
+  title       String
+  body        String
+
+  status      ArticleStatus @default(DRAFT)
+
+  authorId    String
+  author      User @relation(fields: [authorId], references: [id])
+
+  sectionId   String
+  section     Section @relation(fields: [sectionId], references: [id])
+
+  publishTime DateTime?
+
+  revisions   Revision[]
+  comments    Comment[]
+  auditLogs   AuditLog[]
+
+  alertDismissal AlertDismissal?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Revision {
+  id           String @id @default(cuid())
+
+  articleId    String
+  article      Article @relation(fields: [articleId], references: [id])
+
+  title        String
+  body         String
+
+  published    Boolean @default(false)
+
+  createdAt    DateTime @default(now())
+}
+
+model Comment {
+  id          String @id @default(cuid())
+
+  articleId   String
+  article     Article @relation(fields: [articleId], references: [id])
+
+  authorId    String
+  author      User @relation(fields: [authorId], references: [id])
+
+  message     String
+
+  createdAt   DateTime @default(now())
+}
+
+model AuditLog {
+  id          String @id @default(cuid())
+
+  articleId   String
+  article     Article @relation(fields: [articleId], references: [id])
+
+  actorId     String
+  actor       User @relation(fields: [actorId], references: [id])
+
+  action      String
+
+  oldValue    String?
+  newValue    String?
+
+  createdAt   DateTime @default(now())
+}
+
+model AlertDismissal {
+  id          String @id @default(cuid())
+
+  articleId   String @unique
+
+  dismissedAt DateTime
+
+  article     Article @relation(fields: [articleId], references: [id])
 }

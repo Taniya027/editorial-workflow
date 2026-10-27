@@ -1,1 +1,1 @@
-Architecture
+AI-prompts
