@@ -3,54 +3,42 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
-    // Fetch all Scheduled or Published articles for the editorial calendar export
     const articles = await prisma.article.findMany({
       where: {
-        status: { in: ["SCHEDULED", "PUBLISHED"] },
-      },
-      select: {
-        id: true,
-        title: true,
-        status: true,
-        publishTime: true,
-        section: {
-          select: { name: true },
-        },
-        author: {
-          select: { email: true, name: true },
+        status: {
+          in: ["SCHEDULED", "PUBLISHED"],
         },
       },
-      orderBy: { publishTime: "asc" },
+      include: {
+        author: true,
+        section: true,
+      },
+      orderBy: {
+        publishTime: "asc",
+      },
     });
 
-    // Build CSV headers and rows
-    const csvRows = [
-      ["ID", "Title", "Status", "Section", "Author", "Publish Time"].join(","),
-    ];
+    const headers = ["ID", "Title", "Status", "Publish Time", "Author", "Section"];
+    const rows = articles.map((art) => [
+      art.id,
+      `"${art.title.replace(/"/g, '""')}"`,
+      art.status,
+      art.publishTime ? art.publishTime.toISOString() : "",
+      `"${(art.author?.email || art.authorId).replace(/"/g, '""')}"`,
+      `"${(art.section?.name || art.sectionId).replace(/"/g, '""')}"`,
+    ]);
 
-    for (const article of articles) {
-      const authorName: string = article.author?.name || article.author?.email || "Unknown";
-      const row = [
-        article.id,
-        `"${article.title.replace(/"/g, '""')}"`,
-        article.status,
-        `"${article.section.name.replace(/"/g, '""')}"`,
-        `"${authorName.replace(/"/g, '""')}"`,
-        article.publishTime ? article.publishTime.toISOString() : "",
-      ];
-      csvRows.push(row.join(","));
-    }
+    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
 
-    const csvString = csvRows.join("\n");
-
-    return new NextResponse(csvString, {
+    return new NextResponse(csvContent, {
       status: 200,
       headers: {
-        "Content-Type": "text/csv",
+        "Content-Type": "text/csv; charset=utf-8",
         "Content-Disposition": 'attachment; filename="editorial-calendar.csv"',
       },
     });
-  } catch {
-    return NextResponse.json({ error: "Failed to export calendar" }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Internal Server Error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

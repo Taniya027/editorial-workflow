@@ -1,24 +1,68 @@
-"use server";
+import { prisma } from "@/lib/prisma";
+import { ArticleStatus } from "@prisma/client";
 
-import { getArticles, GetArticlesQueryOptions } from "@/lib/articles";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth"; // Import your authOptions
+export interface ArticleQueryParams {
+  search?: string;
+  sectionId?: string;
+  status?: ArticleStatus;
+  authorId?: string;
+  sortBy?: "updatedAt" | "publishTime" | "status";
+  sortOrder?: "asc" | "desc";
+  page?: number;
+  limit?: number;
+}
 
-export async function fetchArticlesAction(
-  params: Omit<GetArticlesQueryOptions, "userId" | "userRole">
-) {
-  const session = await getServerSession(authOptions);
+// Alias for compatibility if imported as GetArticlesQueryOptions elsewhere
+export type GetArticlesQueryOptions = ArticleQueryParams;
 
-  if (!session?.user) {
-    throw new Error("Unauthorized");
-  }
+export async function getArticles(params: ArticleQueryParams) {
+  const {
+    search,
+    sectionId,
+    status,
+    authorId,
+    sortBy = "updatedAt",
+    sortOrder = "desc",
+    page = 1,
+    limit = 10,
+  } = params;
 
-  // Cast user to access custom fields (id, role)
-  const user = session.user as { id: string; role: "EDITOR" | "WRITER" };
+  const skip = (page - 1) * limit;
 
-  return await getArticles({
-    ...params,
-    userId: user.id,
-    userRole: user.role,
-  });
+  const where = {
+    ...(sectionId ? { sectionId } : {}),
+    ...(status ? { status } : {}),
+    ...(authorId ? { authorId } : {}),
+    ...(search
+      ? {
+          OR: [
+            { title: { contains: search, mode: "insensitive" as const } },
+            { body: { contains: search, mode: "insensitive" as const } },
+          ],
+        }
+      : {}),
+  };
+
+  const [articles, total] = await Promise.all([
+    prisma.article.findMany({
+      where,
+      include: {
+        author: true,
+        section: true,
+      },
+      orderBy: {
+        [sortBy]: sortOrder,
+      },
+      skip,
+      take: limit,
+    }),
+    prisma.article.count({ where }),
+  ]);
+
+  return {
+    articles,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+  };
 }

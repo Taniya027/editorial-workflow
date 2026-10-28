@@ -1,19 +1,26 @@
-export async function createSection(
-  name: string,
-  description: string,
-  ownerEditorId: string
-) {
-  console.log("Create Section");
+export interface CreateSectionParams {
+  name?: string;
+  description?: string;
+  ownerEditorId?: string;
 }
 
-export async function updateSection(id: string) {
-  console.log("Update Section");
+export async function createSection(params?: CreateSectionParams) {
+  void params;
+  return null;
 }
 
-export async function archiveSection(id: string) {
-  console.log("Archive Section");
+export async function updateSection(id?: string, params?: CreateSectionParams) {
+  void id;
+  void params;
+  return null;
 }
 
-export async function restoreSection(id: string) {
-  console.log("Restore Section");
+export async function deleteSection(id?: string) {
+  void id;
+  return null;
+}
+
+export async function getSectionById(id?: string) {
+  void id;
+  return null;
 }
