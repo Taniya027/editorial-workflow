@@ -3,15 +3,20 @@ export default function NewSectionPage() {
     <main>
       <h1>Create Section</h1>
 
-       <form>
+      <form>
         <div>
           <label>Section Name</label>
-          <input type="text" />
+          <input
+            type="text"
+            placeholder="Politics"
+          />
         </div>
 
         <div>
           <label>Description</label>
-          <textarea />
+          <textarea
+            placeholder="Section description"
+          />
         </div>
 
         <button type="submit">
