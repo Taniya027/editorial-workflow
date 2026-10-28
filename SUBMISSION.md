@@ -3,7 +3,7 @@
 ## 1. Project Overview
 - **Project Name:** Editorial Workflow Application
 - **Repository URL:** https://github.com/Taniya027/editorial-workflow
-- **Live Application URL:** [YOUR_DEPLOYED_APP_URL_HERE]
+- **Live Application URL:** 
 
 ---
 

@@ -1,15 +1,18 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
+export const instant = false;
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
 async function SectionDetail({ id }: { id: string }) {
+  await connection();
+
   const section = await prisma.section.findUnique({
     where: { id },
     include: {
@@ -48,7 +51,7 @@ async function SectionDetail({ id }: { id: string }) {
 }
 
 export default async function SectionPage({ params }: PageProps) {
-  const { id } = await params;
+  const resolvedParams = await params;
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100 p-8">
@@ -57,7 +60,7 @@ export default async function SectionPage({ params }: PageProps) {
           ← Back to Sections
         </Link>
         <Suspense fallback={<div className="text-slate-400">Loading section details...</div>}>
-          <SectionDetail id={id} />
+          <SectionDetail id={resolvedParams.id} />
         </Suspense>
       </div>
     </main>
