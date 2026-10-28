@@ -3,7 +3,7 @@
 ## 1. Project Overview
 - **Project Name:** Editorial Workflow Application
 - **Repository URL:** https://github.com/Taniya027/editorial-workflow
-- **Live Application URL:** 
+- **Live Application URL:** https://editorial-workflow-1u6sbrhj9-taniya027.vercel.app/
 
 ---
 

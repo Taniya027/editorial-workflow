@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Editorial Workflow & Article Management System
+A production-ready editorial workflow application built for technical assessment submission, featuring role-based access control, article lifecycle state management, immutable audit logs, and performant server-side pagination.
 
-## Getting Started
+Tech Stack
+Framework: Next.js 16 (App Router, Turbopack, Partial Prerendering)
 
-First, run the development server:
+ORM & Database: Prisma v6 with PostgreSQL (Supabase)
 
-```bash
+Authentication: NextAuth.js (Credentials Provider)
+
+Styling: Tailwind CSS
+
+Demo Credentials
+Editor: editor@example.com / password123 (Full CRUD, publish rights, assign sections, view audit logs)
+
+Writer: writer@example.com / password123 (Create & submit articles for assigned sections)
+
+Local Development Setup
+Clone the repository:
+git clone https://github.com/Taniya027/editorial-workflow.git
+cd editorial-workflow
+
+Install dependencies:
+npm install
+
+Configure Environment Variables:
+Create a .env file in the root directory and add your Supabase database URL and NextAuth secret:
+DATABASE_URL="your-postgresql-supabase-connection-string"
+NEXTAUTH_SECRET="editorial-workflow-secret-key-2026"
+NEXTAUTH_URL="http://localhost:3000"
+
+Run Prisma Migrations & Seed Data:
+npx prisma db push
+npx prisma db seed
+
+Run the Development Server:
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open http://localhost:3000 in your browser.
+or you can directly go to SUBMISSION.md and use the vercel link.
